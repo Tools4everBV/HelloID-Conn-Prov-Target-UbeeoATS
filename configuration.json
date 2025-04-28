@@ -1,0 +1,41 @@
+[
+    {
+        "key": "ClientId",
+        "type": "input",
+        "defaultValue": "",
+        "templateOptions": {
+            "label": "ClientId",
+            "description": "The ClientId to connect to the API",
+            "required": true
+        }
+    },
+    {
+        "key": "ClientSecret",
+        "type": "input",
+        "defaultValue": "",
+        "templateOptions": {
+            "type": "password",
+            "label": "ClientSecret",
+            "description": "The ClientSecret to connect to the API",
+            "required": true
+        }
+    },
+    {
+        "key": "BaseUrl",
+        "type": "select",
+        "templateOptions": {
+          "label": "Environment",
+          "placeholder": "Please select an option",
+          "options": [
+            {
+              "value": "https://api.ats-platform.com/java/ats",
+              "label": "Production"
+            },
+            {
+              "value": "https://api.acc.ats-platform.com/java/ats",
+              "label": "Acceptance"
+            }
+          ]
+        }
+      }
+]
