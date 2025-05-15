@@ -96,7 +96,7 @@ The field mapping can be imported by using the _fieldMapping.json_ file.
 ### Correlation - Update
 The **EmployeeID** is used to correlate existing users. If the EmployeeID is found, the current account will be updated. If the EmployeeID is not found, a new account will be created.
 
-### User provisioning Strategy
+### User Provisioning Strategy
 When the customer wishes to use the user provisioning module, the customer must choose a **'UserName'** strategy. Depending on the chosen strategy, some properties in the User JSON will become mandatory. <br>
 *Please check the API documentation for additional information*
 
@@ -108,7 +108,7 @@ The EmailAddress property is unique in Ubeeo. When an account is disabled, the e
 
 ### Connector limits - No Get Call
 #### No GET Endpoint
-The API does not support a GET request to retrieve account details. You may need to use alternative methods or endpoints to access account information, such as using a POST request with appropriate parameters.
+The API does not support a GET request to retrieve account details.
 
 #### No Compare
 There is no comparison in the update script, so a HelloID update trigger always updates the Ubeeo account.
@@ -123,7 +123,7 @@ There is no import entitlements script because there is no API available to retr
 Please note that Ubeeo will also need to whitelist the IP addresses of the server(s) that will consume the API. Without whitelisting the addresses, the consuming IP address will be blacklisted when calling an endpoint too many times.
 
 ### API
-The API returns an HTML error page when a `401` or `415` error occurs. The connector handles `401` errors and returns a custom error message when they occur. A `415` error only happens if the Content-Type is incorrect, which is hardcoded—so this error should not occur.
+The API returns an HTML error page when a `401` or `415` error occurs. The connector handles `401` errors and returns a custom error message when they occur. A `415` error only happens if the Content-Type is incorrect, which is hardcoded, so this error should not occur.
 
 #### Required request body is missing
 The error message `Required request body is missing` is not very clear. For example, if orgUnits is sent as a string instead of an array, or if the body contains incorrectly formatted JSON, the error is returned.
