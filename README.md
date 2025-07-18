@@ -20,7 +20,6 @@
     - [Field mapping](#field-mapping)
   - [Remarks](#remarks)
     - [Correlation - Update](#correlation---update)
-
     - [User provisioning Strategy](#user-provisioning-strategy)
     - [OrgUnits / Roles](#orgunits--roles)
     - [EmailAddress - Reboarding](#emailaddress---reboarding)
