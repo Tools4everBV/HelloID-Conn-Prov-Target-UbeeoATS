@@ -30,7 +30,12 @@ function Resolve-UbeeoATSError {
             if ($null -ne $ErrorObject.Exception.Response) {
                 $streamReaderResponse = [System.IO.StreamReader]::new($ErrorObject.Exception.Response.GetResponseStream()).ReadToEnd()
                 if (-not [string]::IsNullOrEmpty($streamReaderResponse)) {
-                    $httpErrorObj.ErrorDetails = $streamReaderResponse
+                    #Message to filter in html error page: "Unauthorized <small>401</small></h1> <p class="lead">The requested resource requires an authentication."
+                    if  ($streamReaderResponse -like "*Unauthorized*" -and $streamReaderResponse -like "*401*" -and $streamReaderResponse -like "*The requested resource requires an authentication*") {
+                        $httpErrorObj.ErrorDetails = "Authentication required. This may be due to rate limiting. Try lowering the number of concurrent sessions in the connector configuration."
+                    } else {
+                        $httpErrorObj.ErrorDetails = $streamReaderResponse
+                    }
                 }
             }
         }
@@ -39,7 +44,7 @@ function Resolve-UbeeoATSError {
                 $errorDetailsObject = ($httpErrorObj.ErrorDetails | ConvertFrom-Json)
                 $httpErrorObj.FriendlyMessage = "$($errorDetailsObject.Error) - $($errorDetailsObject.message)"
             } catch {
-                $httpErrorObj.FriendlyMessage = "[$($httpErrorObj.ErrorDetails)] - $($_.Exception.Message)"
+                $httpErrorObj.FriendlyMessage = "[$($httpErrorObj.ErrorDetails)]" # - $($_.Exception.Message)"
             }
         }
         Write-Output $httpErrorObj
@@ -71,6 +76,9 @@ try {
     }
     $accessToken = (Invoke-RestMethod @splatGetToken).access_token
 
+    # Body dump (voor debugging)
+    # Write-Information ($actionContext.Data | ConvertTo-Json)
+    
     Write-Information 'Creating and updating UbeeoATS account'
     $splatCreateParams = @{
         Uri     = "$($actionContext.Configuration.BaseUrl)/api/users"
@@ -96,14 +104,13 @@ try {
 } catch {
     $outputContext.Success = $false
     $ex = $PSItem
+
     if ($($ex.Exception.GetType().FullName -eq 'Microsoft.PowerShell.Commands.HttpResponseException') -or
         $($ex.Exception.GetType().FullName -eq 'System.Net.WebException')) {
         $errorObj = Resolve-UbeeoATSError -ErrorObject $ex
         $auditMessage = "Could not create or update UbeeoATS account. Error: $($errorObj.FriendlyMessage)"
-        Write-Warning "Error at Line '$($errorObj.ScriptLineNumber)': $($errorObj.Line). Error: $($errorObj.ErrorDetails)"
     } else {
         $auditMessage = "Could not create or update UbeeoATS account. Error: $($ex.Exception.Message)"
-        Write-Warning "Error at Line '$($ex.InvocationInfo.ScriptLineNumber)': $($ex.InvocationInfo.Line). Error: $($ex.Exception.Message)"
     }
     $outputContext.AuditLogs.Add([PSCustomObject]@{
             Message = $auditMessage

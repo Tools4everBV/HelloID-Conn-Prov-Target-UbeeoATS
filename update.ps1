@@ -30,7 +30,12 @@ function Resolve-UbeeoATSError {
             if ($null -ne $ErrorObject.Exception.Response) {
                 $streamReaderResponse = [System.IO.StreamReader]::new($ErrorObject.Exception.Response.GetResponseStream()).ReadToEnd()
                 if (-not [string]::IsNullOrEmpty($streamReaderResponse)) {
-                    $httpErrorObj.ErrorDetails = $streamReaderResponse
+                    #Message to filter in html error page: "Unauthorized <small>401</small></h1> <p class="lead">The requested resource requires an authentication."
+                    if  ($streamReaderResponse -like "*Unauthorized*" -and $streamReaderResponse -like "*401*" -and $streamReaderResponse -like "*The requested resource requires an authentication*") {
+                        $httpErrorObj.ErrorDetails = "Authentication required. This may be due to rate limiting. Try lowering the number of concurrent sessions in the connector configuration."
+                    } else {
+                        $httpErrorObj.ErrorDetails = $streamReaderResponse
+                    }
                 }
             }
         }
@@ -39,7 +44,7 @@ function Resolve-UbeeoATSError {
                 $errorDetailsObject = ($httpErrorObj.ErrorDetails | ConvertFrom-Json)
                 $httpErrorObj.FriendlyMessage = "$($errorDetailsObject.Error) - $($errorDetailsObject.message)"
             } catch {
-                $httpErrorObj.FriendlyMessage = "[$($httpErrorObj.ErrorDetails)] - $($_.Exception.Message)"
+                $httpErrorObj.FriendlyMessage = "[$($httpErrorObj.ErrorDetails)]" # - $($_.Exception.Message)"
             }
         }
         Write-Output $httpErrorObj
@@ -88,6 +93,7 @@ try {
 
     if (-not($actionContext.DryRun -eq $true)) {
         $null = Invoke-RestMethod @splatUpdateParams
+        Write-Information "Body: [  $($actionContext.Data | ConvertTo-Json) ])"
     } else {
         Write-Information "[DryRun] Update UbeeoATS account with accountReference: [$($actionContext.References.Account)], will be executed during enforcement"
     }
