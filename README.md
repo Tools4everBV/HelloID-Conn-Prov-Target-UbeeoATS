@@ -23,6 +23,7 @@
     - [User provisioning Strategy](#user-provisioning-strategy)
     - [OrgUnits / Roles](#orgunits--roles)
     - [EmailAddress - Reboarding](#emailaddress---reboarding)
+    - [Session concurrency](#session-concurrency)
     - [Connector limits - No Get Call](#connector-limits---no-get-call)
       - [No GET Endpoint](#no-get-endpoint)
       - [No Compare](#no-compare)
@@ -105,6 +106,11 @@ The connector is designed to use only the primary contract for orgUnits. Althoug
 
 ### EmailAddress - Reboarding
 The EmailAddress property is unique in Ubeeo. When an account is disabled, the email address remains in the application. Therefore, if a new person joins the company with the same email address, it cannot be added to the new account in Ubeeo.
+
+#### Session concurrency
+
+For the Ubeeo ATS connector, set the concurrent sessions setting to 1.
+The authentication token that HelloID requests is only valid within the current session. If a new token is requested in a parallel process, any existing token becomes invalid. This can lead to authentication errors or failed actions. Setting the session concurrency to 1 ensures that only one action is executed at a time, preventing token invalidation and avoiding errors.
 
 ### Connector limits - No Get Call
 #### No GET Endpoint
