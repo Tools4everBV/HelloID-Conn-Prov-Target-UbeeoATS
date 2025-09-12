@@ -76,9 +76,6 @@ try {
     }
     $accessToken = (Invoke-RestMethod @splatGetToken).access_token
 
-    # Body dump (voor debugging)
-    # Write-Information ($actionContext.Data | ConvertTo-Json)
-    
     Write-Information 'Creating and updating UbeeoATS account'
     $splatCreateParams = @{
         Uri     = "$($actionContext.Configuration.BaseUrl)/api/users"
